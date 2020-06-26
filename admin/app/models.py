@@ -27,7 +27,7 @@ class User(Model, UserMixin):
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 
-    def verify_password(self, password):
+    def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
@@ -39,16 +39,46 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+class Image(Model):
+
+    name = db.Column(db.String(80))
+    path = db.Column(db.String(100))
+    is_approved = db.Column(db.Boolean, default=False)
+    branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
+    branch = db.relationship('Branch')
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    device = db.relationship('Device')
+
+    def __repr__(self):
+        return '<Image: {}>'.format(self.name)
+
+
+class Vote(Model):
+    vote_number = db.Column(db.Integer, default=0)
+    is_approved = db.Column(db.Boolean, default=False)
+
+    candidate_id = db.Column(db.Integer, db.ForeignKey('candidate.id'))
+    candidate = db.relationship('Candidate')
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
+    district = db.relationship('District')
+    branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
+    branch = db.relationship('Branch')
+    party_id = db.Column(db.Integer, db.ForeignKey('party.id'))
+    party = db.relationship('Party')
+    device_id = db.Column(db.Integer, db.ForeignKey('device.id'))
+    device = db.relationship('Device')
+
+
 class Candidate(Model):
     first_name = db.Column(db.String(100))
     last_name = db.Column(db.String(100))
     gender = db.Column(db.Integer)
 
-    district_id = db.relationship('district.id')
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
     district = db.relationship('District')
-    party_id = db.relationship('party.id')
+    party_id = db.Column(db.Integer, db.ForeignKey('party.id'))
     party = db.relationship('Party')
-    branches = db.relationship('Branch', backref='district_branch', lazy='dynamic')
+    votes = db.relationship('Vote', backref='candidate_votes', lazy='dynamic')
 
     def __repr__(self):
         return '<Candidate {}>'.format(self.first_name)
@@ -56,71 +86,55 @@ class Candidate(Model):
 
 class Party(Model):
     name = db.Column(db.String(100))
-    code = db.Integer(db.Integer)
+    code = db.Column(db.Integer)
 
-    candidates = db.relationship('Candidate', backref='party_candidate', lazy='dynamic')
-
-
-class Coalition(Model):
-    name = db.Column(db.String(100))
-
+    candidates = db.relationship('Candidate', backref='party_candidates', lazy='dynamic')
+    votes = db.relationship('Vote', backref='party_votes', lazy='dynamic')
+    
+    def __repr__(self):
+        return '<Party {}>'.format(self.name)
 
 
 class District(Model):
     code = db.Column(db.String(10))
+    name = db.Column(db.String(40))
     quote = db.Column(db.Integer)
-    candidates = db.relationship('Candidate', backref='district_candidate', lazy='dynamic')
-    branches = db.relationship('Branch', backref='district_branch', lazy='dynamic')
+    votes = db.relationship('Vote', backref='district_votes', lazy='dynamic')
+    candidates = db.relationship('Candidate', backref='district_candidates', lazy='dynamic')
+    branches = db.relationship('Branch', backref='district_branches', lazy='dynamic')
 
     def __repr__(self):
-        return '<istrict {}>'.format(self.code)
+        return '<District {}>'.format(self.name)
 
 
 class Branch(Model):
     name = db.Column(db.String(140))
     address = db.Column(db.String(250))
 
-    votes = db.Column(db.Integer, default=0)
-    candidate_id = db.relationship(db.Integer, db.ForeignKey('candidate.id'))
-    candidate = db.relationship('Candidate')
-
-    district_id = db.relationship('district.id')
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
     district = db.relationship('District')
-    devices = db.relationship('Device', backref='branch_device', lazy='dynamic')
-    images = db.relationship('Image', backref='branch_image', lazy='dynamic')
+    devices = db.relationship('Device', backref='branch_devices', lazy='dynamic')
+    images = db.relationship('Image', backref='branch_images', lazy='dynamic')
+    votes = db.relationship('Vote', backref='branch_votes', lazy='dynamic')
 
     def __repr__(self):
-        return '<Branch {}>'.format(self.body)
+        return '<Branch {}>'.format(self.name)
 
 
 class Device(Model):
     device_type = db.Column(db.String(40))
     device_number = db.Column(db.String(40))
     software_version = db.Column(db.String(40))
-    votes = db.Column(db.Integer, default=0)
-    candidate_id = db.relationship(db.Integer, db.ForeignKey('candidate.id'))
-    candidate = db.relationship('Candidate')
-    branch_id = db.relationship(db.Integer, db.ForeignKey('branch.id'))
+    branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'))
     branch = db.relationship('Branch')
-    district_id = db.relationship('district.id')
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
     district = db.relationship('District')
 
-    images = db.relationship('Image', backref='device_image', lazy='dynamic')
+    images = db.relationship('Image', backref='device_images', lazy='dynamic')
+    votes = db.relationship('Vote', backref='device_votes', lazy='dynamic')
 
     def __repr__(self):
         return '<Device {}>'.format(self.device_number)
-
-
-class Image(Model):
-
-    name = db.Column(db.String(80))
-    path = db.Column(db.String(100))
-    device_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    device = db.relationship('Post')
-
-    def __repr__(self):
-        return '<Image: {}>'.format(self.name)
-
 
 
 
