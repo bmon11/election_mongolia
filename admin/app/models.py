@@ -86,6 +86,7 @@ class Candidate(Model):
 
 class Party(Model):
     name = db.Column(db.String(100))
+    short_name = db.Column(db.String(20))
     code = db.Column(db.Integer)
 
     candidates = db.relationship('Candidate', backref='party_candidates', lazy='dynamic')
@@ -110,7 +111,7 @@ class District(Model):
 class Branch(Model):
     name = db.Column(db.String(140))
     address = db.Column(db.String(250))
-
+    code = db.Column(db.String(10))
     district_id = db.Column(db.Integer, db.ForeignKey('district.id'))
     district = db.relationship('District')
     devices = db.relationship('Device', backref='branch_devices', lazy='dynamic')

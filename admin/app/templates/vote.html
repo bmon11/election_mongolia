@@ -1,0 +1,26 @@
+{% import "bootstrap/utils.html" as utils %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Хэсгийн хорооны санал</h1>
+<div class ="col-md-12 table-responsive p-0"  style = "width:800px;" >
+    <img src="/static/img/{{image.name}}" alt="Зураг олдсонгүй" class="img-fluid mb-12 " style=" max-width:1580px ;border: 3px solid #ddd;text-align:center; " data-toggle="modal" data-target="#myModal">
+</div>
+<form action="" method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.party.label }}<br>
+        {{ form.party(size=1) }}<br>
+    </p>
+    <p>
+        {{ form.candidate.label }}<br>
+        {{ form.candidate(size=32) }}<br>
+    </p>
+    <p>
+        {{ form.vote.label }}<br>
+        {{ form.vote(size=32) }}<br>
+    </p>
+    <p>{{ form.submit() }}</p>
+</form>
+{% endblock %}
