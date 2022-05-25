@@ -38,7 +38,7 @@ ptyprocess==0.6.0
 pycparser==2.19
 pyecharts-jupyter-installer==0.0.3
 Pygments==2.5.2
-PyJWT==1.6.4
+PyJWT==2.4.0
 pyrsistent==0.14.11
 python-dateutil==2.8.1
 python-editor==1.0.3
